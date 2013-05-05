@@ -1,0 +1,534 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <title>De la page blanche au web crawler en 1h avec Scrapy</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1274, user-scalable=no">
+    <link rel="stylesheet" href="assets/themes/ribbon/styles/style.css">
+    <link rel="favicon" href="assets/themes/ribbon/images/python.ico">
+    <!--
+        To apply styles to the certain slides
+        use slide ID to get needed elements
+        -->
+    <style>
+        #Cover h2 {
+            color:#000;
+            text-align:center;
+            font-size:70px;
+            }
+        #FitToWidth h2,
+        #FitToHeight h2 {
+            color:#FFF;
+            text-align:center;
+            }
+        div#contact {
+            padding-left: 1.8em;
+            font-size:35px;
+        }
+        div#contact i {
+            color: black;
+        }
+        div#biopic, div.async{
+            display: block;
+            width: 50%;
+            float: left;
+        }
+        div#biopic img, div#async img{
+            position: relative;
+            left: 1.1em;
+        }
+        img {
+            box-shadow: 5px 5px 10px #888888;
+            border-radius: 8px;
+        }
+        div.right {
+            display: block;
+             width: 45%;
+            float:left;
+        }
+        div#contact nav{
+            padding-top: 0.3em;
+        }
+
+        [class^="icon-"]:before,
+        [class*=" icon-"]:before {
+            padding-right: 0.35em;
+        }
+
+        span.urlp1 {
+            background-color: #FFEDDD;
+        }
+        span.urlp2 {
+            background-color: #EEEDDD;
+        }
+        span.urlp3 {
+            background-color: #DDEDDD;
+        }
+        span.urlp4 {
+            background-color: #CCEDDD;
+        }
+
+    </style>
+</head>
+<body class="list">
+    <header class="caption">
+        <h1>De la page blanche au web crawler en 1h avec Scrapy</h1>
+        <p>Balthazar Rouberol, Mapado</p>
+    </header>
+
+    <div class="slide cover" id="Cover"><div>
+        <section>
+            <header>
+                <h2>De la page blanche au web crawler en 1h avec Scrapy</h2>
+                <p></p>
+                <center><p><span style="color:black">Balthazar Rouberol</span></p></center>
+                <div id="contact">
+                    <nav><i class="icon-slideshare"></i><a class="title" href="http://balthazar-rouberol.com/slides/web-crawling/">balthazar-rouberol.com/slides/web-crawling/</a></nav>
+                    <nav><i class="icon-github"></i><a class="title" href="https://github.com/baltorouberol/isbullshit-crawler">github.com/baltorouberol/isbullshit-crawler</a></nav>
+                    <nav><i class="icon-book"></i><a class="title" href="http://isbullsh.it/2012/04/Web-crawling-with-scrapy/">isbullsh.it/2012/04/Web-crawling-with-scrapy</a></nav>
+                </div>
+            </header>
+        </section>
+    </div></div>
+
+    <div class="slide" id="whoami">
+        <div>
+        <section>
+            <header>
+                <h2><code>$ whoami</code></h2>
+            </header>
+            <div class="right">
+                <ul>
+                    <li><i class="icon-twitter"></i><a class="title" href="https://twitter.com/brouberol">@brouberol</a>
+                    <li>Ingénieur R&amp;D à Mapado:
+                    <ul>
+                        <li><i class="icon-envelope-alt"></i><a class="title" href="mailto:balthazar@mapado.com">balthazar@mapado.com</a>
+                        <li><i class="icon-globe"></i><a href="http://mapado.com">mapado.com</a>
+                    </ul>
+                    <li>Python depuis 5 ans
+                    <li>Membre de l'AFPY
+                    <li>Plusieurs projets avec forte utilisation de web crawling
+                    <li>Livre sur Scrapy en préparation
+                </ul>
+            </div>
+            <div id="biopic"><img src="assets/themes/ribbon/images/me.jpg"></div>
+        </section>
+    </div></div>
+
+    <div class="slide" id="webcrawling-intro">
+        <div>
+        <section>
+            <header>
+                <h2><code>Introduction</code></h2>
+            </header>
+            <blockquote>
+                Crawlers can be used to proactively go out and grab data by your<span class="kw2">self</span> when it is not made available through web APIs.
+            </blockquote>
+
+            <div id="definitions" style="background-color:#dbeeb5;border-radius:10px;padding:0.3em;">
+                <p>
+                    <ul>
+                        <li><strong><dfn id="crawler">Crawler</dfn> (ou spider)</strong>: programme naviguant dans le Web afin de collecter des ressources (souvent dans un but d'indexation).
+                        <li><strong><dfn id="scraper">Scraper</dfn></strong>: programme extrayant du contenu d'une page/d'un site web.
+                    </ul>
+                </p>
+            </div>
+
+        </section>
+    </div></div>
+
+<!--     <div class="slide" id="install1">
+        <div>
+        <section>
+            <header>
+                <h2>Installation (1/2): pip (Python package manager)</h2>
+            </header>
+            <div>
+                <ul>
+                    <li><b>Debian/Mnum/Ubuntu:</b> <code>$ sudo apt-get install python-pip</code>
+                    <li><b>Fedora:</b> <code>$ sudo yum install python-pip</code>
+                    <li><b>Mac OS X:</b> <code>$ sudo easy_install pip</code>
+                </ul>
+            </div>
+       </section>
+    </div></div> -->
+
+    <div class="slide" id="studycase">
+        <div>
+        <section>
+            <header>
+                <h2>Fil rouge</h2>
+            </header>
+            <div>
+                <ul>
+                    <li>Extraction de l'url, du titre, auteur et date de publication des articles parus sur <a href="http://isbullsh.it">http://isbullsh.it</a>
+                    <li>Export des données en JSON
+                </ul>
+            </div>
+        </section>
+    </div></div>
+
+    <div class="slide" id="requirements">
+        <div>
+        <section>
+            <header>
+                <h2>De quoi à t-on besoin?</h2>
+            </header>
+            <div>
+                <ul>
+                    <li>Url des articles
+                    <li>Localisation des données dans chaque article
+                    <li>Librairie de requêtes HTTP (ex: <code>requests</code>)
+                    <li>Libriaire de parsing XML/HTML (ex: <code>lxml</code>)
+                </ul>
+            </div>
+        </section>
+    </div></div>
+
+
+    <div class="slide" id="data-xpaths">
+        <div>
+        <section>
+            <header>
+                <h2>1ère étape: connaître vos données!</h2>
+            </header>
+            <div>
+            <p>Extraction des XPaths avec Firebug (Firefox), ou équivalent (Chrome DevTools, etc) par inspection du DOM.</p>
+            <ul>
+                <li>Titre: <code>'/html/body/div/div/div/div[2]/header/h1'</code>
+                <li>Auteur: <code>'/html/body/div/div/div/div[2]/header/p/a'</code>
+                <li>Date: <code>'/html/body/div/div/div/div[2]/header/div/p'</code>
+            </ul>
+        </section>
+    </div></div>
+
+    <div class="slide" id="regex">
+        <div>
+        <section>
+            <header>
+                <h3>Définition du pattern d'url d'article</h3>
+            </header>
+            <ul>
+                <li><span class="urlp1">http://isbullsh.it/</span><span class="urlp2">2012/</span><span class="urlp3">04/</span><span class="urlp4">Web-crawling-with-scrapy</span>
+                <li><span class="urlp1">http://isbullsh.it/</span><span class="urlp2">2012/</span><span class="urlp3">07/</span><span class="urlp4">The-anti-tech-startup-pattern</span>
+                <li><span class="urlp1">http://isbullsh.it/</span><span class="urlp2">2012/</span><span class="urlp3">06/</span><span class="urlp4">Css-Dropdown-tree</span>
+                <li><span class="urlp1">http://isbullsh.it/</span><span class="urlp2">2012/</span><span class="urlp3">06/</span><span class="urlp4">Rest-api-in-python</span>
+                <li>...
+            </ul>
+            ➱ regex: <code style="background:none;"><span class="urlp1">http://isbullsh\.it/</span><span class="urlp2">\d{4}/</span><span class="urlp3">\d{2}/</span><span class="urlp4">[\w-]+</span></code>
+        </section>
+    </div></div>
+
+    <div class="slide" id="purepython1">
+        <div>
+        <section>
+            <header>
+                <h2>Fetch, scrape &amp; export d'une page</h2>
+            </header>
+            <pre>
+                <code><span class="kw">import</span> requests, json, lxml.html</code>
+                <code><span class="com"># Crawl: fetch html</span></code>
+                <code>html = requests.get(url).text</code>
+                <code><span class="com"># Parse html: scrape the data using XPaths</span></code>
+                <code>tree = lxml.html.fromstring(html)</code>
+                <code>title = tree.xpath(<span class="str">'/html/body/div/div/div/div[2]/header/h1/text()'</span>)[0]</code>
+                <code>author = tree.xpath(<span class="str">'/html/body/div/div/div/div[2]/header/p/a/text()'</span>)[0]</code>
+                <code>date = tree.xpath(<span class="str">'/html/body/div/div/div/div[2]/header/div/p/text()'</span>)[0]</code>
+                <code><span class="com"># Export data to JSON format</span></code>
+                <code>data = {<span class="str">'title'</span>: title, <span class="str">'author'</span>: author, <span class="str">'date'</span>: date, <span class="str">'url'</span>: url}</code>
+                <code>json.dump(data, <span class="kw">open</span>(<span class="str">'export.json'</span>, <span class="str">'w'</span>))</code>
+            </pre>
+        </section>
+    </div></div>
+
+    <div class="slide" id="purepython2">
+        <div>
+        <section>
+            <header>
+                <h2>Résultat du crawl du site</h2>
+            </header>
+            <pre>
+                <code>[ {</code>
+                <code>    "title": "Odyssey of a webapp developer"{</code>
+                <code>    "author": "Etienne", {</code>
+                <code>    "date": "27 Jun 2012", {</code>
+                <code>    "url": "http://isbullsh.it/2012/06/Odyssey-Chap1-Part1/"</code>
+                <code>  },</code>
+                <code>  {</code>
+                <code>    "title": "Blur images with ImageMagick"</code>
+                <code>    "author": "Balthazar", </code>
+                <code>    "date": "11 Apr 2012", </code>
+                <code>    "url": "http://isbullsh.it/2012/04/Blur-images-with-imagemagick/"</code>
+                <code>  }, </code>
+                <code>  ...</code>
+            </pre>
+        </section>
+    </div></div>
+
+    <div class="slide" id="purepython3">
+        <div>
+        <section>
+            <header>
+                <h2>Observations</h2>
+            </header>
+            <ul>
+                <li><span style="font-size:1.2em;"><b>☺</b>   </span>Concis, léger, peu de dépendances
+                <li><span style="font-size:1.2em;"><b>☺</b>   </span>Pratique pour un usage ponctuel
+                <li><span style="font-size:1.2em;"><b>☹</b>   </span><strong>Bloquant</strong>: finir un cycle avant d'en recommencer un autre
+                <li><span style="font-size:1.2em;"><b>☹</b>   </span>Lent pour un grand nombre de pages (<strong>~99% d'I/O</strong>)!<br/>
+                <code>python isbullshit-manual-scrape.py  0,30s user 0,06s system 1% cpu 22,335 total</code>
+            </ul>
+        </section>
+    </div></div>
+
+   <div class="slide" id="async">
+        <div>
+            <section>
+                <header>
+                    <h2>I/O asynchrone</h2>
+                </header>
+                <div class="right">
+                    <blockquote>
+                        Asynchronous I/O, or non-blocking I/O, in computer science, is a form of input/output processing that permits other processing to continue before the transmission has finished.
+                    </blockquote>
+                    <i class="icon-pencil"></i><a href="https://en.wikipedia.org/wiki/Asynchronous_I/O">Wikipedia</a>
+                </div>
+                <div class="async">
+                    <img src="assets/themes/ribbon/images/async.gif">
+                </div>
+            </section>
+        </div></div>
+
+    <div class="slide" id="scrapy">
+        <div>
+        <section>
+            <header>
+                <h2>Scrapy</h2>
+            </header>
+            <ul>
+                <li>Framework Python de web crawling / web scraping <b>asynchrone</b>
+                <li>Excellente documentation: <i class="icon-book"></i><a href="http://doc.scrapy.org/en/0.16/">http://doc.scrapy.org/en/0.16/</a>
+                <li>Open source:  <i class="icon-github"></i><a href="https://github.com/scrapy/scrapy">https://github.com/scrapy/scrapy</a>
+                <li>Simple d'utilisation
+                <li>Customisable par middlewares et extensions<br/>
+                    <i class="icon-idea"></i><a href="http://snipplr.com/all/tags/scrapy/">http://snipplr.com/all/tags/scrapy/</a>
+                <li><strong>Implémentation: documentation de regex &amp; XPaths</strong>
+                <li>Bonnes pratiques imposées: séparation du crawl, scrape et export
+            </ul>
+        </section>
+    </div></div>
+
+    <div class="slide" id="startproject">
+        <div>
+        <section>
+            <header>
+                <h3 style="font-size:0.8em;"><code>$ scrapy startproject isbullshit</code></h3>
+            </header>
+            <p>Structure de projet standard</p>
+            <ul>
+                <li><code>items.py</code>: définition des données cibles
+                <li><code>settings.py</code>: paramètres du crawler
+                <li><code>pipelines.py</code>: traitement de données une fois scrapées
+                <li><code>spiders/</code>: dossier contenant les différentes spiders
+                <li><code>spiders/isbullshit-spider.py</code>: <strong>(à créer)</strong> notre spider
+                <li><span style="opacity: 0.6"><code>scapy.cfg</code>: non abordé</span>
+            </ul>
+        </section>
+    </div></div>
+
+    <div class="slide" id="items.py">
+        <div>
+        <section>
+            <header>
+                <h3>Définition de la structure de données à extraire</h3>
+            </header>
+            <p></p>
+            <pre>
+                <code><span class="com"># In items.py</span></code>
+                <code><span class="kw">from</span> scrapy.item <span class="kw">import</span> Item, Field</code>
+                <code>    </code>
+                <code><span class="kw">class</span> IsbullshitItem(Item):</code>
+                <code>    title = Field()</code>
+                <code>    author = Field()</code>
+                <code>    date = Field()</code>
+                <code>    url = Field()</code>
+            </pre>
+        </section>
+    </div></div>
+
+    <div class="slide" id="spider/isbullshit_spider.py">
+        <div>
+        <section>
+            <header>
+                <h3>Configuration du crawler</h3>
+            </header>
+                <pre>
+                    <code><span class="com"># In spider/isbullshit-spider.py</code>
+                    <code><span class="kw">class</span> IsBullshitSpider(CrawlSpider):</span></code>
+                    <code>    <span class="str">"""General configuration of the Crawl Spider """</span></code>
+                    <code>    name = <span class="str">'isbullshit'</span></code>
+                    <code>    start_urls = [<span class="str">'http://isbullsh.it'</span>]</code>
+                    <code>    allowed_domains = [<span class="str">'isbullsh.it'</span>]</code>
+                    <code>    rules = [</code>
+                    <code>        Rule(SgmlLinkExtractor(</code>
+                    <code>            allow=[r<span class="str">'http://isbullsh\.it/\d{4}/\d{2}/\w+'</span>], unique=<span class="kw">True</span>), </code>
+                    <code>            callback=<span class="str">'parse_blogpost'</span>)</code>
+                    <code>    ]</code>
+                </pre>
+            </section>
+        </div></div>
+
+    <div class="slide" id="spider/isbullshit_spider.py3">
+            <div>
+            <section>
+                <header>
+                    <h3>Scraping des données</h3>
+                </header>
+
+                <pre>
+                    <code><span class="com"># In spider/isbullshit-spider.py</code>
+                    <code><span class="kw">def</span> parse_blogpost(<span class="kw2">self</span>, response):</code>
+                    <code>    <span class="str">""" Callback method scraping data from the response html """</span></code>
+                    <code>    hxs = HtmlXPathSelector(response)</code>
+                    <code>    item = IsbullshitItem()</code>
+                    <code>    item[<span class="str">'title'</span>] = hxs.select(<span class="str">'//header/h1/text()'</span>).extract()[<span class="num">0</span>]</code>
+                    <code>    item[<span class="str">'author'</span>] = hxs.select(<span class="str">'//header/p/a/text()'</span>).extract()[<span class="num">0</span>]</code>
+                    <code>    item[<span class="str">'date'</span>] = hxs.select(<span class="str">'//header/div[@class="post-data"]'</span> </code>
+                    <code>                  <span class="str">'/p/text()'</span>).extract()[<span class="num">0</span>]</code>
+                    <code>    item[<span class="str">'url'</span>] = response.url</code>
+                    <code></code>
+                    <code>    <span class="kw">return</span> item</code>
+                </pre>
+            </section>
+        </div></div>
+
+    <div class="slide" id="release">
+        <div>
+        <section>
+            <header>
+                <h3>RELEASE THE SPIDER!</h3>
+            </header>
+            <code>$ cd path/to/isbullshit</code><br/>
+            <code>$ scrapy crawl isbullshit -o blogposts.json -t json</code>
+            <img src="assets/themes/ribbon/images/spidey.jpg">
+        </section>
+    </div></div>
+
+    <div class="slide" id="why-mongodb">
+        <div>
+        <section>
+            <header>
+                <h3>Stockage des données en base de données</h3>
+            </header>
+            <div>
+                <h3>Pourquoi mongoDB?</h3>
+                <ul>
+                    <li>Pratique: pas de définition de table
+                    <li>Évolution des données très simple
+                    <li>Tolérance à "l'imprévu" (données absentes, manquantes, etc)
+                </ul>
+            </div>
+            <div>
+                <i class="icon-download"></i><a href="http://www.mongodb.org/downloads">http://www.mongodb.org/downloads</a>
+        </section>
+    </div></div>
+
+    <div class="slide" id="mongodb-settings">
+            <div>
+            <section>
+                <header>
+                    <h3>Configuration de mongoDB</h3>
+                </header>
+                <pre>
+                    <code><span class="com"># In settings.py</code>
+                    <code>MONGODB_HOST = <span class="str">"localhost"</span>  <span class="com"># default value</span></code>
+                    <code>MONGODB_PORT = <span class="num">27017</span>  <span class="com"># default value</span></code>
+                    <code>MONGODB_DB = <span class="str">"isbullshit-scrape"</span></code>
+                    <code>MONGODB_COL = <span class="str">"blogposts"</span></code>
+                    <code> </code>
+                    <code><span class="com"># Send items to these pipelines after they have been scraped</span></code>
+                    <code>ITEM_PIPELINES = [<span class="str">'isbullshit.pipelines.MongoDBStorage'</span>]</code>
+                </pre>
+            </section>
+        </div></div>
+
+        <div class="slide" id="mongodb-pipeline1">
+            <div>
+            <section>
+                <header>
+                    <h3>Pipeline de stockage dans mongoDB (connexion)</h3>
+                </header>
+                <pre>
+                    <code><span class="com"># In pipelines.py</code>
+                    <code><span class="kw">class</span> <span class="func">MongoDBStorage</span>(<span class="kw2">object</span>):</code>
+                    <code>    <span class="kw">def</span> <span class="func">__init__</span>(<span class="kw2">self</span>):</code>
+                    <code>        host = settings[<span class="str">'MONGODB_HOST'</span>]</code>
+                    <code>        port = settings[<span class="str">'MONGODB_PORT'</span>]</code>
+                    <code>        db = settings[<span class="str">'MONGODB_DB'</span>]</code>
+                    <code>        col = settings[<span class="str">'MONGODB_COL'</span>]</code>
+                    <code>        connection = pymongo.MongoClient(host, port)</code>
+                    <code>        db = connection[db]</code>
+                    <code>        <span class="kw2">self</span>.collection = db[col]</code>
+                </pre>
+            </section>
+        </div></div>
+
+        <div class="slide" id="mongodb-pipeline2">
+            <div>
+            <section>
+                <header>
+                    <h3>Pipeline de stockage dans mongoDB (insertion)</h3>
+                </header>
+                <pre>
+                    <code><span class="com"># In pipelines.py</code>
+                    <code><span class="kw">class</span> <span class="func">MongoDBStorage</span>(<span class="kw2">object</span>):</code>
+                    <code>    <span class="com">...</span></code>
+                    <code>    <span class="kw">def</span> <span class="func">parse_item</span>(<span class="kw2">self</span>, item, spider)</code>
+                    <code>        <span class="kw2">self</span>.collection.insert(<span class="kw">dict</span>(item))</code>
+                    <code>        log.msg(<span class="str">"Blogpost from %s inserted in database"</span> <span class="kw">%</span> (item[<span class="str">'url'</span>]),</code>
+                    <code>                level=log.DEBUG, spider=spider)</code>
+                    <code>        <span class="kw">return</span> item</code>
+                </pre>
+            </section>
+        </div></div>
+
+    <div class="slide" id="release2">
+        <div>
+        <section>
+            <header>
+                <h3>RELEASE THE SPIDER (bis)!</h3>
+            </header>
+            <code>$ cd path/to/isbullshit</code><br/>
+            <code>$ scrapy crawl isbullshit</code>
+            <img src="assets/themes/ribbon/images/spidey2.jpg">
+        </section>
+    </div></div>
+
+    <div class="slide" id="pipelines-ideas">
+        <div>
+        <section>
+            <header>
+                <h3>D'autres utilisations des pipelines</h3>
+            </header>
+            <ul>
+                <li>Compression du code html (gzip)
+                <li>Validation des données
+                <li>Téléchargement des images sur le filesystem
+                <li>…
+            </ul>
+        </section>
+    </div></div>
+
+    <!-- JS? AJAX? -->
+
+    <!--
+        To hide progress bar from entire presentation
+        just remove “progress” element.
+        -->
+
+    <div class="progress"><div></div></div>
+    <script src="assets/js/script.js"></script>
+    <!-- Copyright © 2010–2012 Vadim Makeev — pepelsbey.net -->
+    <!-- Photos by John Carey — fiftyfootshadows.net -->
+</body>
+</html>
