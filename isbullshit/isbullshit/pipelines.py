@@ -2,6 +2,7 @@ import pymongo
 
 from scrapy.conf import settings
 from scrapy import log
+from scrapy.exceptions import DropItem
 
 
 class MongoDBStorage(object):
@@ -16,9 +17,12 @@ class MongoDBStorage(object):
         self.collection = db[col]
 
     def process_item(self, item, spider):
-        self.collection.insert(dict(item))
-        log.msg(
-            'Blogpost from %s inserted in database' % (item['url']),
-            level=log.DEBUG, spider=spider
-        )
-        return item
+        if not self.collection.find_one({'url': item['url']}):
+            self.collection.insert(dict(item))
+            log.msg(
+                "Article from %s inserted in database" % (item['url']),
+                level=log.DEBUG, spider=spider
+            )
+            return item
+        else:
+            raise DropItem('Article from %s already in DB' % item['url'])

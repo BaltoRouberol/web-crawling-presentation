@@ -122,7 +122,7 @@
         <div>
         <section>
             <header>
-                <h2><code>Introduction</code></h2>
+                <h2>Introduction</h2>
             </header>
             <blockquote>
                 Crawlers can be used to proactively go out and grab data by your<span class="kw2">self</span> when it is not made available through web APIs.
@@ -497,10 +497,13 @@
                     <code><span class="kw">class</span> <span class="func">MongoDBStorage</span>(<span class="kw2">object</span>):</code>
                     <code>    <span class="com">...</span></code>
                     <code>    <span class="kw">def</span> <span class="func">parse_item</span>(<span class="kw2">self</span>, item, spider)</code>
-                    <code>        <span class="kw2">self</span>.collection.insert(<span class="kw">dict</span>(item))</code>
-                    <code>        log.msg(<span class="str">"Blogpost from %s inserted in database"</span> <span class="kw">%</span> (item[<span class="str">'url'</span>]),</code>
+                    <code>        <span class="kw">if not</span> <span class="kw2">self</span>.collection.find_one({'url': item[<span class="str">'url'</span>]}):</code>
+                    <code>            <span class="kw2">self</span>.collection.insert(<span class="kw">dict</span>(item))</code>
+                    <code>            log.msg(<span class="str">"Article from %s inserted in database"</span> <span class="kw">%</span> (item[<span class="str">'url'</span>]),</code>
                     <code>                level=log.DEBUG, spider=spider)</code>
-                    <code>        <span class="kw">return</span> item</code>
+                    <code>            <span class="kw">return</span> item</code>
+                    <code>        <span class="kw">else</span>:</code>
+                    <code>            <span class="kw">raise</span> DropItem(<span class="str">'Article from %s already in DB'</span> <span class="kw">%</span> item[<span class="str">'url'</span>])
                 </pre>
             </section>
         </div></div>
