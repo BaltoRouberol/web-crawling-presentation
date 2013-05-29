@@ -22,12 +22,12 @@ END = '\033[0m'
 
 def warn(text):
     """ Print the input text to stdout in ANSI red """
-    print RED + text + END
+    return RED + text + END
 
 
 def success(text):
     """ Print the input text to stdout in ANSI green """
-    print GREEN + text + END
+    return GREEN + text + END
 
 
 def get_article_links(homepage):
@@ -57,7 +57,7 @@ def scrape(url):
     if req.status_code != 200:  # if something went wrong
         error = "[Error] request on %s returned with status %d (%s)" % (
             url, req.status_code, req.reason)
-        warn(error)
+        print warn(error)
         return None
     html = req.text
 
@@ -79,7 +79,7 @@ def crawl(article_url_list):
         print "Scraping %s" % (article_url)
         scraped = scrape(article_url)
         if scraped:
-            success("Extracted %s" % (str(scraped)))
+            print success("[Success] Extracted %s" % (str(scraped)))
             articles_data.append(scraped)
     return articles_data
 
@@ -87,9 +87,11 @@ def crawl(article_url_list):
 def main():
     """ Scrape data from all articles at http://isbullsh.it """
     article_urls = get_article_links('http://isbullsh.it')
+    print '%d articles found' % (len(article_urls))
     scraped_data = crawl(article_urls)
-    json.dump(scraped_data, open('export.json', 'w'), indent=2)
-    print '\nAll data has been dumped into export.json'
+    dump_file = 'articles.json'
+    json.dump(scraped_data, open(dump_file, 'w'), indent=2)
+    print '\nAll data has been dumped into %s' % (dump_file)
 
 
 if __name__ == '__main__':
